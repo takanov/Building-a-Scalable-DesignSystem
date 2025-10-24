@@ -1,0 +1,126 @@
+name: レギュレーションリクエスト処理
+
+# Issueが作成されたときにトリガー
+on:
+  issues:
+    types: [opened]
+
+# 権限設定
+permissions:
+  issues: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  # Phase 1: 基本的な自動応答
+  auto-response:
+    # regulation-requestラベルが付いているIssueのみ処理
+    if: contains(github.event.issue.labels.*.name, 'regulation-request')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Issue作成者に自動返信
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Issueの情報を取得
+            const issue = context.payload.issue;
+            
+            // 自動返信メッセージを作成
+            const message = `👋 @${issue.user.login} さん、レギュレーション追加リクエストをありがとうございます!
+            
+            ## 🤖 自動処理を開始します
+            
+            以下の手順で進行します：
+            
+            1. ✅ リクエスト内容の確認（完了）
+            2. 🔄 レギュレーションドキュメントの生成（準備中）
+            3. 📝 プルリクエストの作成（準備中）
+            4. 👀 レビュー待ち
+            
+            ---
+            
+            **📋 リクエスト内容サマリー:**
+            - **タイトル:** ${issue.title}
+            - **作成者:** @${issue.user.login}
+            - **作成日時:** ${new Date(issue.created_at).toLocaleString('ja-JP')}
+            
+            しばらくお待ちください。処理が完了次第、このIssueに更新をお知らせします。
+            
+            ※ Phase 1では自動返信のみ実装しています。Phase 2以降で実際のドキュメント生成を実装予定です。`;
+            
+            // Issueにコメントを投稿
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: message
+            });
+            
+            console.log('✅ 自動返信を投稿しました');
+
+      - name: Issue処理中ラベルを追加
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              labels: ['processing']
+            });
+            
+            console.log('✅ 処理中ラベルを追加しました');
+
+  # Phase 1: Issueの内容を解析して構造化データを作成
+  parse-issue:
+    if: contains(github.event.issue.labels.*.name, 'regulation-request')
+    needs: auto-response
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Issue内容の解析
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body;
+            
+            // Issueテンプレートから情報を抽出（簡易版）
+            // Phase 2以降で、より高度な解析を実装予定
+            
+            console.log('📊 Issue情報:');
+            console.log(`- タイトル: ${issue.title}`);
+            console.log(`- 本文長: ${body.length}文字`);
+            console.log(`- ラベル: ${issue.labels.map(l => l.name).join(', ')}`);
+            
+            // Phase 2でここにNotion連携やClaude Code呼び出しを追加予定
+            
+            // 解析完了コメントを投稿
+            const analysisComment = `## 📊 解析完了
+            
+            Issue内容の解析が完了しました。
+            
+            **次のステップ（Phase 2以降で実装予定）:**
+            - レギュレーションテンプレートの適用
+            - 既存ドキュメントとの整合性チェック
+            - Claude Codeによるドキュメント生成
+            - PRの自動作成
+            
+            現在はPhase 1のため、ここで処理を終了します。`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: analysisComment
+            });

@@ -1,0 +1,108 @@
+name: 📋 レギュレーション追加リクエスト
+description: 新しいデザインレギュレーションの追加をリクエストします
+title: "[REGULATION] "
+labels: ["regulation-request", "needs-review"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## レギュレーション追加リクエスト
+        
+        新しいデザインレギュレーションの追加をリクエストします。
+        このIssueをもとに、自動でレギュレーションドキュメントが生成されます。
+
+  - type: input
+    id: regulation-title
+    attributes:
+      label: レギュレーションのタイトル
+      description: 追加したいレギュレーションのタイトルを入力してください
+      placeholder: 例）プライマリボタンとセカンダリボタンの使い分け
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: カテゴリー
+      description: このレギュレーションが属するカテゴリーを選択してください
+      options:
+        - コンポーネント
+        - カラー
+        - タイポグラフィ
+        - レイアウト
+        - インタラクション
+        - アクセシビリティ
+        - その他
+    validations:
+      required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景・目的
+      description: なぜこのレギュレーションが必要なのか、背景や目的を説明してください
+      placeholder: |
+        例）
+        現在、プライマリボタンとセカンダリボタンの使い分けが曖昧で、
+        チーム内で統一されていない。UIの一貫性を保つために、
+        明確な基準を設けたい。
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-issue
+    attributes:
+      label: 現在の課題
+      description: 現状で発生している問題や、混乱している点を具体的に記述してください
+      placeholder: |
+        例）
+        - デザイナーによってボタンの使い方が異なる
+        - 重要度の低いアクションにプライマリボタンが使われている
+        - セカンダリボタンの視認性が低すぎるという指摘がある
+
+  - type: textarea
+    id: desired-regulation
+    attributes:
+      label: 希望するレギュレーション内容（案）
+      description: どのようなルールにしたいか、案があれば記述してください（任意）
+      placeholder: |
+        例）
+        - プライマリボタン：ページ内で最も重要なアクション1つのみ
+        - セカンダリボタン：プライマリの次に重要なアクション
+        - 1画面に配置できるプライマリボタンは1つまで
+
+  - type: textarea
+    id: reference
+    attributes:
+      label: 参考資料
+      description: 参考にしたいデザイン理論、既存システム、記事などがあれば記述してください
+      placeholder: |
+        例）
+        - Material Design のボタンガイドライン
+        - 既存のNotionドキュメント: [リンク]
+        - 参考記事: [URL]
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度
+      description: このレギュレーションの追加優先度を選択してください
+      options:
+        - 高（緊急）
+        - 中（通常）
+        - 低（余裕があれば）
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 確認事項
+      description: 以下の項目を確認してください
+      options:
+        - label: 既存のレギュレーションと重複していないことを確認しました
+          required: true
+        - label: このレギュレーションがチーム全体に影響することを理解しています
+          required: true
